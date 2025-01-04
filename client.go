@@ -76,13 +76,9 @@ func (c *Client) Connect() error {
 	c.conn = newConn(enginioCon, c.handlers)
 
 	if err := c.conn.connectClient(); err != nil {
-		nspConn, exist := c.conn.namespaces.Get(rootNamespace)
+		nspConn, _ := c.conn.namespaces.Get(rootNamespace)
 		if root, ok := c.handlers.Get(rootNamespace); ok && root.onError != nil {
-			if exist {
-				root.onError(nspConn, err)
-			} else {
-				root.onError(nil, err)
-			}
+			root.onError(nspConn, err)
 		}
 		_ = c.Close()
 		return err

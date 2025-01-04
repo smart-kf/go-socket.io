@@ -222,11 +222,11 @@ func (s *Server) ForEach(namespace string, room string, f EachFunc) bool {
 func (s *Server) serveConn(conn engineio.Conn) {
 	c := newConn(conn, s.handlers)
 	if err := c.connect(); err != nil {
-		_ = c.Close()
+		nsConn, _ := c.namespaces.Get(rootNamespace)
 		if root, ok := s.handlers.Get(rootNamespace); ok && root.onError != nil {
-			root.onError(nil, err)
+			root.onError(nsConn, err)
 		}
-
+		_ = c.Close()
 		return
 	}
 
