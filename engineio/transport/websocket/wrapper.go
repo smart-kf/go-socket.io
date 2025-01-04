@@ -7,11 +7,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/googollee/go-socket.io/logger"
 	"github.com/gorilla/websocket"
 
-	"github.com/googollee/go-socket.io/engineio/frame"
-	"github.com/googollee/go-socket.io/engineio/transport"
+	"github.com/smart-kf/go-socket.io/logger"
+
+	"github.com/smart-kf/go-socket.io/engineio/frame"
+	"github.com/smart-kf/go-socket.io/engineio/transport"
 )
 
 type wrapper struct {
@@ -129,7 +130,10 @@ func newWcWrapper(l *sync.Mutex, w io.WriteCloser) wcWrapper {
 		select {
 		case <-chQuit:
 		case <-timer.C:
-			logger.Error("Did you forget to Close() the WriteCloser from NextWriter?", fmt.Errorf("ConnectionNotClosed"))
+			logger.Error(
+				"Did you forget to Close() the WriteCloser from NextWriter?",
+				fmt.Errorf("ConnectionNotClosed"),
+			)
 		}
 	}()
 

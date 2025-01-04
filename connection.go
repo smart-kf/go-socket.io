@@ -8,8 +8,8 @@ import (
 	"reflect"
 	"sync"
 
-	"github.com/googollee/go-socket.io/engineio"
-	"github.com/googollee/go-socket.io/parser"
+	"github.com/smart-kf/go-socket.io/engineio"
+	"github.com/smart-kf/go-socket.io/parser"
 )
 
 // Conn is a connection in go-socket.io
@@ -58,18 +58,22 @@ func newConn(engineConn engineio.Conn, handlers *namespaceHandlers) *conn {
 func (c *conn) Close() error {
 	var err error
 
-	c.closeOnce.Do(func() {
-		// for each namespace, leave all rooms, and call the disconnect handler.
-		c.namespaces.Range(func(ns string, nc *namespaceConn) {
-			if nh, _ := c.handlers.Get(ns); nh != nil && nh.onDisconnect != nil {
-				nh.onDisconnect(nc, clientDisconnectMsg)
-			}
-			nc.LeaveAll()
-		})
-		err = c.Conn.Close()
+	c.closeOnce.Do(
+		func() {
+			// for each namespace, leave all rooms, and call the disconnect handler.
+			c.namespaces.Range(
+				func(ns string, nc *namespaceConn) {
+					if nh, _ := c.handlers.Get(ns); nh != nil && nh.onDisconnect != nil {
+						nh.onDisconnect(nc, clientDisconnectMsg)
+					}
+					nc.LeaveAll()
+				},
+			)
+			err = c.Conn.Close()
 
-		close(c.quitChan)
-	})
+			close(c.quitChan)
+		},
+	)
 
 	return err
 }
@@ -85,9 +89,11 @@ func (c *conn) connect() error {
 
 	root.Join(root.Conn.ID())
 
-	c.namespaces.Range(func(ns string, nc *namespaceConn) {
-		nc.SetContext(c.Conn.Context())
-	})
+	c.namespaces.Range(
+		func(ns string, nc *namespaceConn) {
+			nc.SetContext(c.Conn.Context())
+		},
+	)
 
 	header := parser.Header{
 		Type: parser.Connect,

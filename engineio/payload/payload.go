@@ -7,8 +7,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/googollee/go-socket.io/engineio/frame"
-	"github.com/googollee/go-socket.io/engineio/packet"
+	"github.com/smart-kf/go-socket.io/engineio/frame"
+	"github.com/smart-kf/go-socket.io/engineio/packet"
 )
 
 type readArg struct {
@@ -241,9 +241,11 @@ func (p *Payload) Resume() {
 // Close closes the payload.
 // It can call in multi-goroutine.
 func (p *Payload) Close() error {
-	p.closeOnce.Do(func() {
-		close(p.close)
-	})
+	p.closeOnce.Do(
+		func() {
+			close(p.close)
+		},
+	)
 	return nil
 }
 

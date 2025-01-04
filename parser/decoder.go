@@ -9,8 +9,8 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/googollee/go-socket.io/engineio/session"
-	"github.com/googollee/go-socket.io/logger"
+	"github.com/smart-kf/go-socket.io/engineio/session"
+	"github.com/smart-kf/go-socket.io/logger"
 )
 
 const (
@@ -127,8 +127,8 @@ func (d *Decoder) DecodeArgs(types []reflect.Type) ([]reflect.Value, error) {
 		return nil, err
 	}
 
-	//we can't use defer or call DiscardLast before decoding, because
-	//there are buffered readers involved and if we invoke .Close() json will encounter unexpected EOF.
+	// we can't use defer or call DiscardLast before decoding, because
+	// there are buffered readers involved and if we invoke .Close() json will encounter unexpected EOF.
 	_ = d.DiscardLast()
 
 	for i, typ := range types {

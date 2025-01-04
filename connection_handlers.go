@@ -3,8 +3,8 @@ package socketio
 import (
 	"log"
 
-	"github.com/googollee/go-socket.io/logger"
-	"github.com/googollee/go-socket.io/parser"
+	"github.com/smart-kf/go-socket.io/logger"
+	"github.com/smart-kf/go-socket.io/parser"
 )
 
 var emtpyFH = newAckFunc(func() {})
@@ -34,7 +34,15 @@ func ackPacketHandler(c *conn, header parser.Header) error {
 	// Read the body because Ack can have body as well
 	args, err := c.decoder.DecodeArgs(handler.argTypes)
 	if err != nil {
-		logger.Info("Error decoding the ACK message type", "namespace", header.Namespace, "eventType", handler.argTypes, "err", err.Error())
+		logger.Info(
+			"Error decoding the ACK message type",
+			"namespace",
+			header.Namespace,
+			"eventType",
+			handler.argTypes,
+			"err",
+			err.Error(),
+		)
 		c.onError(header.Namespace, err)
 		return errDecodeArgs
 	}
@@ -67,7 +75,17 @@ func eventPacketHandler(c *conn, event string, header parser.Header) error {
 	args, err := c.decoder.DecodeArgs(handler.getEventTypes(event))
 	if err != nil {
 		c.onError(header.Namespace, err)
-		logger.Info("Error decoding the message type", "namespace", header.Namespace, "event", event, "eventType", handler.getEventTypes(event), "err", err.Error())
+		logger.Info(
+			"Error decoding the message type",
+			"namespace",
+			header.Namespace,
+			"event",
+			event,
+			"eventType",
+			handler.getEventTypes(event),
+			"err",
+			err.Error(),
+		)
 		return errDecodeArgs
 	}
 

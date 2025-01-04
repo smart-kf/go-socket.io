@@ -9,8 +9,8 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	"github.com/googollee/go-socket.io/engineio/packet"
-	"github.com/googollee/go-socket.io/engineio/transport"
+	"github.com/smart-kf/go-socket.io/engineio/packet"
+	"github.com/smart-kf/go-socket.io/engineio/transport"
 )
 
 // conn implements base.Conn
@@ -76,8 +76,10 @@ func (c *conn) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (c *conn) Close() error {
-	c.closeOnce.Do(func() {
-		close(c.closed)
-	})
+	c.closeOnce.Do(
+		func() {
+			close(c.closed)
+		},
+	)
 	return c.ws.Close()
 }

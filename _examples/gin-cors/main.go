@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	socketio "github.com/googollee/go-socket.io"
+	socketio "github.com/smart-kf/go-socket.io"
 )
 
 func GinMiddleware(allowOrigin string) gin.HandlerFunc {
@@ -14,7 +14,10 @@ func GinMiddleware(allowOrigin string) gin.HandlerFunc {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", allowOrigin)
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type, Content-Length, X-CSRF-Token, Token, session, Origin, Host, Connection, Accept-Encoding, Accept-Language, X-Requested-With")
+		c.Writer.Header().Set(
+			"Access-Control-Allow-Headers",
+			"Accept, Authorization, Content-Type, Content-Length, X-CSRF-Token, Token, session, Origin, Host, Connection, Accept-Encoding, Accept-Language, X-Requested-With",
+		)
 
 		if c.Request.Method == http.MethodOptions {
 			c.AbortWithStatus(http.StatusNoContent)
@@ -32,36 +35,48 @@ func main() {
 
 	server := socketio.NewServer(nil)
 
-	server.OnConnect("/", func(s socketio.Conn) error {
-		s.SetContext("")
-		log.Println("connected:", s.ID())
-		return nil
-	})
+	server.OnConnect(
+		"/", func(s socketio.Conn) error {
+			s.SetContext("")
+			log.Println("connected:", s.ID())
+			return nil
+		},
+	)
 
-	server.OnEvent("/", "notice", func(s socketio.Conn, msg string) {
-		log.Println("notice:", msg)
-		s.Emit("reply", "have "+msg)
-	})
+	server.OnEvent(
+		"/", "notice", func(s socketio.Conn, msg string) {
+			log.Println("notice:", msg)
+			s.Emit("reply", "have "+msg)
+		},
+	)
 
-	server.OnEvent("/chat", "msg", func(s socketio.Conn, msg string) string {
-		s.SetContext(msg)
-		return "recv " + msg
-	})
+	server.OnEvent(
+		"/chat", "msg", func(s socketio.Conn, msg string) string {
+			s.SetContext(msg)
+			return "recv " + msg
+		},
+	)
 
-	server.OnEvent("/", "bye", func(s socketio.Conn) string {
-		last := s.Context().(string)
-		s.Emit("bye", last)
-		s.Close()
-		return last
-	})
+	server.OnEvent(
+		"/", "bye", func(s socketio.Conn) string {
+			last := s.Context().(string)
+			s.Emit("bye", last)
+			s.Close()
+			return last
+		},
+	)
 
-	server.OnError("/", func(s socketio.Conn, e error) {
-		log.Println("meet error:", e)
-	})
+	server.OnError(
+		"/", func(s socketio.Conn, e error) {
+			log.Println("meet error:", e)
+		},
+	)
 
-	server.OnDisconnect("/", func(s socketio.Conn, msg string) {
-		log.Println("closed", msg)
-	})
+	server.OnDisconnect(
+		"/", func(s socketio.Conn, msg string) {
+			log.Println("closed", msg)
+		},
+	)
 
 	go func() {
 		if err := server.Serve(); err != nil {

@@ -11,8 +11,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/googollee/go-socket.io/engineio/frame"
-	"github.com/googollee/go-socket.io/engineio/packet"
+	"github.com/smart-kf/go-socket.io/engineio/frame"
+	"github.com/smart-kf/go-socket.io/engineio/packet"
 )
 
 func TestPayloadFeedIn(t *testing.T) {
@@ -403,7 +403,7 @@ func TestPayloadInOutPause(t *testing.T) {
 		must.NoError(err)
 	}()
 
-	//wait other run
+	// wait other run
 	time.Sleep(time.Second / 10)
 
 	start := time.Now()

@@ -4,7 +4,7 @@ import (
 	"log"
 	"time"
 
-	socketio "github.com/googollee/go-socket.io"
+	socketio "github.com/smart-kf/go-socket.io"
 )
 
 func main() {
@@ -17,9 +17,11 @@ func main() {
 	}
 
 	// Handle an incoming event
-	client.OnEvent("reply", func(s socketio.Conn, msg string) {
-		log.Println("Receive Message /reply: ", "reply", msg)
-	})
+	client.OnEvent(
+		"reply", func(s socketio.Conn, msg string) {
+			log.Println("Receive Message /reply: ", "reply", msg)
+		},
+	)
 
 	err = client.Connect()
 	if err != nil {

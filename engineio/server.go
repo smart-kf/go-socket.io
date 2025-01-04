@@ -12,8 +12,8 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	"github.com/googollee/go-socket.io/engineio/session"
-	"github.com/googollee/go-socket.io/engineio/transport"
+	"github.com/smart-kf/go-socket.io/engineio/session"
+	"github.com/smart-kf/go-socket.io/engineio/transport"
 )
 
 // Server is instance of server
@@ -46,9 +46,11 @@ func NewServer(opts *Options) *Server {
 
 // Close closes server.
 func (s *Server) Close() error {
-	s.closeOnce.Do(func() {
-		close(s.connChan)
-	})
+	s.closeOnce.Do(
+		func() {
+			close(s.connChan)
+		},
+	)
 	return nil
 }
 

@@ -2,10 +2,11 @@ package parser
 
 import (
 	"bytes"
-	"github.com/googollee/go-socket.io/engineio/session"
 	"io"
 	"reflect"
 	"testing"
+
+	"github.com/smart-kf/go-socket.io/engineio/session"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -38,39 +39,41 @@ func (w *fakeWriter) Close() error {
 
 func TestEncoder(t *testing.T) {
 	for _, test := range tests {
-		t.Run(test.Name, func(t *testing.T) {
-			should := assert.New(t)
-			must := require.New(t)
+		t.Run(
+			test.Name, func(t *testing.T) {
+				should := assert.New(t)
+				must := require.New(t)
 
-			w := fakeWriter{}
-			encoder := NewEncoder(&w)
-			v := test.Var
-			if test.Header.Type == Event {
-				v = append([]interface{}{test.Event}, test.Var...)
-			}
-
-			var err error
-			if v != nil {
-				err = encoder.Encode(test.Header, v)
-			} else {
-				err = encoder.Encode(test.Header)
-			}
-
-			must.NoError(err)
-			must.Equal(len(test.Data), len(w.types))
-			must.Equal(len(test.Data), len(w.data))
-
-			for i := range w.types {
-				if i == 0 {
-					should.Equal(session.TEXT, w.types[i])
-					should.Equal(string(test.Data[i]), w.data[i].String())
-					continue
+				w := fakeWriter{}
+				encoder := NewEncoder(&w)
+				v := test.Var
+				if test.Header.Type == Event {
+					v = append([]interface{}{test.Event}, test.Var...)
 				}
 
-				should.Equal(session.BINARY, w.types[i])
-				should.Equal(test.Data[i], w.data[i].Bytes())
-			}
-		})
+				var err error
+				if v != nil {
+					err = encoder.Encode(test.Header, v)
+				} else {
+					err = encoder.Encode(test.Header)
+				}
+
+				must.NoError(err)
+				must.Equal(len(test.Data), len(w.types))
+				must.Equal(len(test.Data), len(w.data))
+
+				for i := range w.types {
+					if i == 0 {
+						should.Equal(session.TEXT, w.types[i])
+						should.Equal(string(test.Data[i]), w.data[i].String())
+						continue
+					}
+
+					should.Equal(session.BINARY, w.types[i])
+					should.Equal(test.Data[i], w.data[i].Bytes())
+				}
+			},
+		)
 	}
 }
 
@@ -83,42 +86,52 @@ func TestAttachBuffer(t *testing.T) {
 	}{
 		{"&Buffer", &Buffer{Data: []byte{1, 2}}, 1, [][]byte{{1, 2}}},
 		{"[]interface{}{Buffer}", []interface{}{&Buffer{Data: []byte{1, 2}}}, 1, [][]byte{{1, 2}}},
-		{"[]interface{}{Buffer,Buffer}", []interface{}{
-			&Buffer{Data: []byte{1, 2}},
-			&Buffer{Data: []byte{3, 4}},
-		}, 2, [][]byte{{1, 2}, {3, 4}}},
+		{
+			"[]interface{}{Buffer,Buffer}", []interface{}{
+				&Buffer{Data: []byte{1, 2}},
+				&Buffer{Data: []byte{3, 4}},
+			}, 2, [][]byte{{1, 2}, {3, 4}},
+		},
 		{"[1]interface{}{Buffer}", [...]interface{}{&Buffer{Data: []byte{1, 2}}}, 1, [][]byte{{1, 2}}},
-		{"[2]interface{}{Buffer,Buffer}", [...]interface{}{
-			&Buffer{Data: []byte{1, 2}},
-			&Buffer{Data: []byte{3, 4}},
-		}, 2, [][]byte{{1, 2}, {3, 4}}},
-		{"Struct{Buffer}", struct {
-			Data *Buffer
-			I    int
-		}{
-			&Buffer{Data: []byte{1, 2}},
-			3,
-		}, 1, [][]byte{{1, 2}}},
-		{"map{Buffer}", map[string]interface{}{
-			"data": &Buffer{Data: []byte{1, 2}},
-			"i":    3,
-		}, 1, [][]byte{{1, 2}}},
+		{
+			"[2]interface{}{Buffer,Buffer}", [...]interface{}{
+				&Buffer{Data: []byte{1, 2}},
+				&Buffer{Data: []byte{3, 4}},
+			}, 2, [][]byte{{1, 2}, {3, 4}},
+		},
+		{
+			"Struct{Buffer}", struct {
+				Data *Buffer
+				I    int
+			}{
+				&Buffer{Data: []byte{1, 2}},
+				3,
+			}, 1, [][]byte{{1, 2}},
+		},
+		{
+			"map{Buffer}", map[string]interface{}{
+				"data": &Buffer{Data: []byte{1, 2}},
+				"i":    3,
+			}, 1, [][]byte{{1, 2}},
+		},
 	}
 
 	e := Encoder{}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			should := assert.New(t)
-			must := require.New(t)
+		t.Run(
+			test.name, func(t *testing.T) {
+				should := assert.New(t)
+				must := require.New(t)
 
-			index := uint64(0)
-			b, err := e.attachBuffer(reflect.ValueOf(test.data), &index)
+				index := uint64(0)
+				b, err := e.attachBuffer(reflect.ValueOf(test.data), &index)
 
-			must.NoError(err)
+				must.NoError(err)
 
-			should.Equal(test.max, index)
-			should.Equal(test.binary, b)
-		})
+				should.Equal(test.max, index)
+				should.Equal(test.binary, b)
+			},
+		)
 	}
 }

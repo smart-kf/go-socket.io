@@ -8,8 +8,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/googollee/go-socket.io/engineio/session"
-	"github.com/googollee/go-socket.io/parser"
+	"github.com/smart-kf/go-socket.io/engineio/session"
+	"github.com/smart-kf/go-socket.io/parser"
 )
 
 type testStr struct {
@@ -61,10 +61,12 @@ func TestAck(t *testing.T) {
 	header := parser.Header{}
 
 	called := false
-	f := newAckFunc(func(t *testStr) {
-		called = true
-		should.Equal("pass", t.Result)
-	})
+	f := newAckFunc(
+		func(t *testStr) {
+			called = true
+			should.Equal("pass", t.Result)
+		},
+	)
 	conn.ack.Store(id, f)
 
 	event := "a"

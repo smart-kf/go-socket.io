@@ -2,10 +2,11 @@ package parser
 
 import (
 	"bytes"
-	"github.com/googollee/go-socket.io/engineio/session"
 	"io"
 	"reflect"
 	"testing"
+
+	"github.com/smart-kf/go-socket.io/engineio/session"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -40,46 +41,48 @@ func (r *fakeReader) Close() error {
 
 func TestDecoder(t *testing.T) {
 	for _, test := range tests {
-		t.Run(test.Name, func(t *testing.T) {
-			should := assert.New(t)
-			must := require.New(t)
+		t.Run(
+			test.Name, func(t *testing.T) {
+				should := assert.New(t)
+				must := require.New(t)
 
-			r := fakeReader{data: test.Data}
-			decoder := NewDecoder(&r)
+				r := fakeReader{data: test.Data}
+				decoder := NewDecoder(&r)
 
-			defer func() {
-				_ = decoder.DiscardLast()
-				_ = decoder.Close()
-			}()
+				defer func() {
+					_ = decoder.DiscardLast()
+					_ = decoder.Close()
+				}()
 
-			var header Header
-			var event string
+				var header Header
+				var event string
 
-			err := decoder.DecodeHeader(&header, &event)
+				err := decoder.DecodeHeader(&header, &event)
 
-			must.Nil(err, "decode header error: %s", err)
+				must.Nil(err, "decode header error: %s", err)
 
-			should.Equal(test.Header, header)
-			should.Equal(test.Event, event)
+				should.Equal(test.Header, header)
+				should.Equal(test.Event, event)
 
-			types := make([]reflect.Type, len(test.Var))
-			for i := range types {
-				types[i] = reflect.TypeOf(test.Var[i])
-			}
-			ret, err := decoder.DecodeArgs(types)
+				types := make([]reflect.Type, len(test.Var))
+				for i := range types {
+					types[i] = reflect.TypeOf(test.Var[i])
+				}
+				ret, err := decoder.DecodeArgs(types)
 
-			must.Nil(err, "decode args error: %s", err)
+				must.Nil(err, "decode args error: %s", err)
 
-			vars := make([]interface{}, len(ret))
-			for i := range vars {
-				vars[i] = ret[i].Interface()
-			}
+				vars := make([]interface{}, len(ret))
+				for i := range vars {
+					vars[i] = ret[i].Interface()
+				}
 
-			if len(vars) == 0 {
-				vars = nil
-			}
+				if len(vars) == 0 {
+					vars = nil
+				}
 
-			should.Equal(test.Var, vars)
-		})
+				should.Equal(test.Var, vars)
+			},
+		)
 	}
 }

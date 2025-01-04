@@ -6,11 +6,11 @@ import (
 	"path"
 	"strings"
 
-	"github.com/googollee/go-socket.io/engineio"
-	"github.com/googollee/go-socket.io/engineio/transport"
-	"github.com/googollee/go-socket.io/engineio/transport/polling"
-	"github.com/googollee/go-socket.io/logger"
-	"github.com/googollee/go-socket.io/parser"
+	"github.com/smart-kf/go-socket.io/engineio"
+	"github.com/smart-kf/go-socket.io/engineio/transport"
+	"github.com/smart-kf/go-socket.io/engineio/transport/polling"
+	"github.com/smart-kf/go-socket.io/logger"
+	"github.com/smart-kf/go-socket.io/parser"
 )
 
 var EmptyAddrErr = errors.New("empty addr")
@@ -76,11 +76,15 @@ func (c *Client) Connect() error {
 	c.conn = newConn(enginioCon, c.handlers)
 
 	if err := c.conn.connectClient(); err != nil {
-		_ = c.Close()
+		nspConn, exist := c.conn.namespaces.Get(rootNamespace)
 		if root, ok := c.handlers.Get(rootNamespace); ok && root.onError != nil {
-			root.onError(nil, err)
+			if exist {
+				root.onError(nspConn, err)
+			} else {
+				root.onError(nil, err)
+			}
 		}
-
+		_ = c.Close()
 		return err
 	}
 
@@ -272,9 +276,11 @@ func (c *conn) connectClient() error {
 
 	root.Join(root.Conn.ID())
 
-	c.namespaces.Range(func(ns string, nc *namespaceConn) {
-		nc.SetContext(c.Conn.Context())
-	})
+	c.namespaces.Range(
+		func(ns string, nc *namespaceConn) {
+			nc.SetContext(c.Conn.Context())
+		},
+	)
 
 	header := parser.Header{
 		Type: parser.Connect,

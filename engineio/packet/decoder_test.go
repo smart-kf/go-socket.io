@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/googollee/go-socket.io/engineio/frame"
+	"github.com/smart-kf/go-socket.io/engineio/frame"
 )
 
 var tests = []struct {
@@ -16,45 +16,50 @@ var tests = []struct {
 	frames  []Frame
 }{
 	{nil, nil},
-	{[]Packet{
-		{frame.String, OPEN, []byte{}},
-	}, []Frame{
-		{frame.String, []byte("0")},
+	{
+		[]Packet{
+			{frame.String, OPEN, []byte{}},
+		}, []Frame{
+			{frame.String, []byte("0")},
+		},
 	},
+	{
+		[]Packet{
+			{frame.String, MESSAGE, []byte("hello 你好")},
+		}, []Frame{
+			{frame.String, []byte("4hello 你好")},
+		},
 	},
-	{[]Packet{
-		{frame.String, MESSAGE, []byte("hello 你好")},
-	}, []Frame{
-		{frame.String, []byte("4hello 你好")},
+	{
+		[]Packet{
+			{frame.Binary, MESSAGE, []byte("hello 你好")},
+		}, []Frame{
+			{frame.Binary, []byte{0x04, 'h', 'e', 'l', 'l', 'o', ' ', 0xe4, 0xbd, 0xa0, 0xe5, 0xa5, 0xbd}},
+		},
 	},
+	{
+		[]Packet{
+			{frame.String, OPEN, []byte{}},
+			{frame.Binary, MESSAGE, []byte("hello\n")},
+			{frame.String, MESSAGE, []byte("你好\n")},
+			{frame.String, PING, []byte("probe")},
+		}, []Frame{
+			{frame.String, []byte("0")},
+			{frame.Binary, []byte{0x04, 'h', 'e', 'l', 'l', 'o', '\n'}},
+			{frame.String, []byte("4你好\n")},
+			{frame.String, []byte("2probe")},
+		},
 	},
-	{[]Packet{
-		{frame.Binary, MESSAGE, []byte("hello 你好")},
-	}, []Frame{
-		{frame.Binary, []byte{0x04, 'h', 'e', 'l', 'l', 'o', ' ', 0xe4, 0xbd, 0xa0, 0xe5, 0xa5, 0xbd}},
-	},
-	},
-	{[]Packet{
-		{frame.String, OPEN, []byte{}},
-		{frame.Binary, MESSAGE, []byte("hello\n")},
-		{frame.String, MESSAGE, []byte("你好\n")},
-		{frame.String, PING, []byte("probe")},
-	}, []Frame{
-		{frame.String, []byte("0")},
-		{frame.Binary, []byte{0x04, 'h', 'e', 'l', 'l', 'o', '\n'}},
-		{frame.String, []byte("4你好\n")},
-		{frame.String, []byte("2probe")},
-	},
-	},
-	{[]Packet{
-		{frame.Binary, MESSAGE, []byte{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}},
-		{frame.String, MESSAGE, []byte("hello")},
-		{frame.String, CLOSE, []byte{}},
-	}, []Frame{
-		{frame.Binary, []byte{4, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}},
-		{frame.String, []byte("4hello")},
-		{frame.String, []byte("1")},
-	},
+	{
+		[]Packet{
+			{frame.Binary, MESSAGE, []byte{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}},
+			{frame.String, MESSAGE, []byte("hello")},
+			{frame.String, CLOSE, []byte{}},
+		}, []Frame{
+			{frame.Binary, []byte{4, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}},
+			{frame.String, []byte("4hello")},
+			{frame.String, []byte("1")},
+		},
 	},
 }
 
@@ -79,11 +84,13 @@ func TestDecoder(t *testing.T) {
 			err = fr.Close()
 			must.NoError(err)
 
-			output = append(output, Packet{
-				FType: ft,
-				PType: pt,
-				Data:  b,
-			})
+			output = append(
+				output, Packet{
+					FType: ft,
+					PType: pt,
+					Data:  b,
+				},
+			)
 		}
 		should.Equal(test.packets, output)
 	}

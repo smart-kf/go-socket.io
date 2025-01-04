@@ -3,7 +3,7 @@ package packet
 import (
 	"bytes"
 
-	"github.com/googollee/go-socket.io/engineio/frame"
+	"github.com/smart-kf/go-socket.io/engineio/frame"
 )
 
 type fakeFrame struct {
@@ -32,9 +32,11 @@ func (w *fakeFrame) Close() error {
 	if w.w == nil {
 		return nil
 	}
-	w.w.Frames = append(w.w.Frames, Frame{
-		FType: w.typ,
-		Data:  w.data.Bytes(),
-	})
+	w.w.Frames = append(
+		w.w.Frames, Frame{
+			FType: w.typ,
+			Data:  w.data.Bytes(),
+		},
+	)
 	return nil
 }

@@ -6,9 +6,9 @@ import (
 
 	"github.com/gomodule/redigo/redis"
 
-	"github.com/googollee/go-socket.io/engineio"
-	"github.com/googollee/go-socket.io/logger"
-	"github.com/googollee/go-socket.io/parser"
+	"github.com/smart-kf/go-socket.io/engineio"
+	"github.com/smart-kf/go-socket.io/logger"
+	"github.com/smart-kf/go-socket.io/parser"
 )
 
 // Server is a go-socket.io server.
@@ -103,7 +103,7 @@ func (s *Server) OnEvent(namespace, event string, f interface{}) {
 func (s *Server) Serve() error {
 	for {
 		conn, err := s.engine.Accept()
-		//todo maybe need check EOF from Accept()
+		// todo maybe need check EOF from Accept()
 		if err != nil {
 			return err
 		}
